@@ -2,46 +2,24 @@ package main
 
 import (
 	"fmt"
-	"html/template"
-	"log"
-	"net/http"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
+)
+
+const (
+	WEBPORT string = "80"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "test.page.html")
+	engine := html.New("./cmd/web/templates", ".html")
+
+	app := fiber.New(fiber.Config{
+		Views: engine,
 	})
 
-	fmt.Println("Starting front end service on port 80")
-	err := http.ListenAndServe(":80", nil)
-	if err != nil {
-		log.Panic(err)
-	}
-}
-
-func render(w http.ResponseWriter, s string) {
-	partials := []string{
-		"./cmd/web/templates/base.layout.html",
-		"./cmd/web/templates/header.partial.html",
-		"./cmd/web/templates/footer.partial.html",
+	setupRoute(app)
+	if err := app.Listen(fmt.Sprintf(":%s", WEBPORT)); err != nil {
+		panic(err)
 	}
 
-	var templateSlice []string
-	templateSlice = append(templateSlice, fmt.Sprintf("./cmd/web/templates/%s", s))
-
-	for _, x := range partials {
-		templateSlice = append(templateSlice, x)
-	}
-
-	fmt.Println(">>>>>>>>>>>", templateSlice)
-
-	tmpl, err := template.ParseFiles(templateSlice...)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if err := tmpl.Execute(w, nil); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 }

@@ -2,31 +2,19 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
+	"github.com/gofiber/fiber/v2"
 )
 
-const (
-	webPort = "80"
-)
-
-type Config struct {
-}
+const webPort = "80"
 
 func main() {
-	app := Config{}
 
-	log.Printf("starting broker service on port %s\n", webPort)
+	app := fiber.New()
 
-	// define http server
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
-		Handler: app.routes(),
+	setupRoutes(app)
+
+	if err := app.Listen(fmt.Sprintf(":%s", webPort)); err != nil {
+		panic(err)
 	}
 
-	// start the server
-	err := srv.ListenAndServe()
-	if err != nil {
-		log.Panic(err)
-	}
 }

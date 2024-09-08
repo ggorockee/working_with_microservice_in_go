@@ -1,28 +1,22 @@
 package main
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
-	"net/http"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-func (app *Config) routes() http.Handler {
-	mux := chi.NewRouter()
+func setupRoutes(app *fiber.App) {
+	app.Use(cors.New(
+		cors.Config{
+			AllowOrigins:     "*",
+			AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
+			AllowHeaders:     "Accept, Authorization, Content-Type, X-CSRF-Token",
+			AllowCredentials: false,
+			ExposeHeaders:    "Link",
+			MaxAge:           300,
+		},
+	))
 
-	// specify who is allowed to connect
-	mux.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	}))
-
-	mux.Use(middleware.Heartbeat("/ping"))
-
-	mux.Post("/", app.Broker)
-
-	return mux
+	app.Post("/", Broker)
+	app.Post("/handle", HandleSubmission)
 }
