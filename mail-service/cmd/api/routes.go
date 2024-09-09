@@ -35,7 +35,5 @@ func (app *Config) setupRoutes() {
 		},
 	))
 
-	app.Server.Serve.Post("/", app.Broker)
-	app.Server.Serve.Post("/handle", app.HandleSubmission)
-	app.Server.Serve.Get("/healthcheck", app.HealthCheck)
+	app.Server.Serve.Post("/send", app.SendMail)
 }

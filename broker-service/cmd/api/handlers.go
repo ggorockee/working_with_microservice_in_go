@@ -5,10 +5,18 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+type MailPayload struct {
+	From    string `json:"from"`
+	To      string `json:"to"`
+	Subject string `json:"subject"`
+	Message string `json:"message"`
+}
 
 type AuthPayload struct {
 	Email    string `json:"email"`
@@ -19,6 +27,7 @@ type RequestPayload struct {
 	Action string      `json:"action"`
 	Auth   AuthPayload `json:"auth,omitempty"`
 	Log    LogPayload  `json:"log,omitempty"`
+	Mail   MailPayload `json:"mail,omitempty"`
 }
 
 type LogPayload struct {
@@ -26,7 +35,7 @@ type LogPayload struct {
 	Data string `json:"data"`
 }
 
-func Broker(c *fiber.Ctx) error {
+func (app *Config) Broker(c *fiber.Ctx) error {
 	payload := &jsonResponse{
 		Error:   false,
 		Message: "Hit the broker",
@@ -45,14 +54,14 @@ func Broker(c *fiber.Ctx) error {
 	})
 }
 
-func HealthCheck(c *fiber.Ctx) error {
+func (app *Config) HealthCheck(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"status": "ok",
 		"data":   nil,
 	})
 }
 
-func HandleSubmission(c *fiber.Ctx) error {
+func (app *Config) HandleSubmission(c *fiber.Ctx) error {
 	var requestPayload RequestPayload
 
 	if err := c.BodyParser(&requestPayload); err != nil {
@@ -61,9 +70,11 @@ func HandleSubmission(c *fiber.Ctx) error {
 
 	switch requestPayload.Action {
 	case "auth":
-		return authenticate(c, requestPayload.Auth)
+		return app.authenticate(c, requestPayload.Auth)
 	case "log":
-		return logItem(c, requestPayload.Log)
+		return app.logItem(c, requestPayload.Log)
+	case "mail":
+		return app.sendMail(c, requestPayload.Mail)
 	default:
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"error": "unknown action",
@@ -71,7 +82,7 @@ func HandleSubmission(c *fiber.Ctx) error {
 	}
 }
 
-func authenticate(c *fiber.Ctx, a AuthPayload) error {
+func (app *Config) authenticate(c *fiber.Ctx, a AuthPayload) error {
 
 	//a AuthPayload = {
 	//	Email:    "sample@sample.com",
@@ -124,7 +135,7 @@ func authenticate(c *fiber.Ctx, a AuthPayload) error {
 	return c.Status(http.StatusOK).JSON(payload)
 }
 
-func logItem(c *fiber.Ctx, entry LogPayload) error {
+func (app *Config) logItem(c *fiber.Ctx, entry LogPayload) error {
 	jsonData, _ := json.MarshalIndent(entry, "", "\t")
 	logServiceURL := "http://logger-service/log"
 
@@ -151,6 +162,53 @@ func logItem(c *fiber.Ctx, entry LogPayload) error {
 	var payload jsonResponse
 	payload.Error = false
 	payload.Message = "logged"
+	return c.Status(http.StatusAccepted).JSON(payload)
+
+}
+
+func (app *Config) sendMail(c *fiber.Ctx, msg MailPayload) error {
+
+	jsonData, _ := json.MarshalIndent(msg, "", "\t")
+
+	mailServiceURL := "http://mail-service/send"
+
+	request, err := http.NewRequest("POST", mailServiceURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		jsonResp := jsonResponse{
+			Error:   true,
+			Message: err.Error(),
+		}
+		return c.Status(http.StatusBadRequest).JSON(jsonResp)
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		jsonResp := jsonResponse{
+			Error:   true,
+			Message: err.Error(),
+		}
+		return c.Status(http.StatusBadRequest).JSON(jsonResp)
+	}
+	defer response.Body.Close()
+
+	errorbodyWithByte, _ := io.ReadAll(response.Body)
+
+	if response.StatusCode != http.StatusAccepted {
+		jsonResp := jsonResponse{
+			Error:   true,
+			Message: string(errorbodyWithByte),
+		}
+		return c.Status(http.StatusBadRequest).JSON(jsonResp)
+	}
+
+	payload := jsonResponse{
+		Error:   false,
+		Message: "Message sent to" + msg.To,
+	}
+
 	return c.Status(http.StatusAccepted).JSON(payload)
 
 }
