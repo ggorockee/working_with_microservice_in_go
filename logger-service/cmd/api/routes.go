@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
-
-var app *fiber.App
 
 type Server struct {
 	Serve *fiber.App
@@ -24,7 +23,7 @@ func (app *Config) Listen() {
 	}
 }
 
-func (app *Config) routes() {
+func (app *Config) setupRoutes() {
 	app.Server.Serve.Use(cors.New(
 		cors.Config{
 			AllowOrigins:     "*",

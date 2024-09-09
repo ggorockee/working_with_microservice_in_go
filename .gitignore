@@ -3,3 +3,7 @@
 *.sum
 project/db-data/postgres
 project/db-data/mongo
+authentication-service/authApp
+broker-service/brokerApp
+front-end/frontApp
+logger-service/loggerServiceApp

@@ -15,7 +15,7 @@ import (
 const (
 	WEB_PORT  = "80"
 	RPC_PORT  = "5001"
-	MONGO_URL = "mongodb://localhost:27017"
+	MONGO_URL = "mongodb://mongo:27017"
 	gRPC_PORT = "50001"
 )
 
@@ -54,8 +54,11 @@ func main() {
 		Server: FiberNew(fiberApp),
 	}
 
+	// combine router
+	app.setupRoutes()
+
 	// start web server
-	go app.serve()
+	app.serve()
 }
 
 func (app *Config) serve() {
