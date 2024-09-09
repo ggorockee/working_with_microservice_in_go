@@ -1,12 +1,32 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-func setupRoutes(app *fiber.App) {
-	app.Use(cors.New(
+var app *fiber.App
+
+type Server struct {
+	Serve *fiber.App
+}
+
+func FiberNew(app *fiber.App) Server {
+	return Server{
+		Serve: app,
+	}
+}
+
+func (app *Config) Listen(aPort string) {
+	if err := app.Server.Serve.Listen(fmt.Sprintf(":%s", aPort)); err != nil {
+		panic(err)
+	}
+}
+
+func (app *Config) setupRoutes() {
+	app.Server.Serve.Use(cors.New(
 		cors.Config{
 			AllowOrigins:     "*",
 			AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
@@ -17,7 +37,7 @@ func setupRoutes(app *fiber.App) {
 		},
 	))
 
-	app.Post("/", Broker)
-	app.Post("/handle", HandleSubmission)
-	app.Get("/healthcheck", HealthCheck)
+	app.Server.Serve.Post("/", Broker)
+	app.Server.Serve.Post("/handle", HandleSubmission)
+	app.Server.Serve.Get("/healthcheck", HealthCheck)
 }

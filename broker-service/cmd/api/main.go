@@ -1,20 +1,29 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 )
 
-const webPort = "80"
+const (
+	WEB_PORT = "80"
+)
+
+type Config struct {
+	Server Server
+}
 
 func main() {
-
-	app := fiber.New()
-
-	setupRoutes(app)
-
-	if err := app.Listen(fmt.Sprintf(":%s", webPort)); err != nil {
-		panic(err)
+	fiberApp := fiber.New()
+	app := Config{
+		Server: FiberNew(fiberApp),
 	}
-
+	//app := fiber.New()
+	//
+	//setupRoutes(app)
+	//
+	//if err := app.Listen(fmt.Sprintf(":%s", webPort)); err != nil {
+	//	panic(err)
+	//}
+	app.setupRoutes()
+	app.Listen(WEB_PORT)
 }

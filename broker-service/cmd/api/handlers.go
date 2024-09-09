@@ -3,8 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type AuthPayload struct {
@@ -15,6 +16,12 @@ type AuthPayload struct {
 type RequestPayload struct {
 	Action string      `json:"action"`
 	Auth   AuthPayload `json:"auth,omitempty"`
+	Log    LogPayload  `json:"log,omitempty"`
+}
+
+type LogPayload struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
 }
 
 func Broker(c *fiber.Ctx) error {
@@ -53,6 +60,8 @@ func HandleSubmission(c *fiber.Ctx) error {
 	switch requestPayload.Action {
 	case "auth":
 		return authenticate(c, requestPayload.Auth)
+	case "log":
+		return logItem(c, requestPayload.Log)
 	default:
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"error": "unknown action",
@@ -111,4 +120,35 @@ func authenticate(c *fiber.Ctx, a AuthPayload) error {
 	payload.Data = jsonFromService.Data
 
 	return c.Status(http.StatusOK).JSON(payload)
+}
+
+func logItem(c *fiber.Ctx, entry LogPayload) error {
+	jsonData, _ := json.MarshalIndent(entry, "", "\t")
+	logServiceURL := "http://logger-service/log"
+
+	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(err)
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(err)
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusAccepted {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": "bad request!!",
+		})
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "logged"
+	return c.Status(http.StatusAccepted).JSON(payload)
+
 }

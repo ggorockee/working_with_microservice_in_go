@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -14,6 +15,12 @@ type Server struct {
 func FiberNew(app *fiber.App) Server {
 	return Server{
 		Serve: app,
+	}
+}
+
+func (app *Config) Listen() {
+	if err := app.Server.Serve.Listen(fmt.Sprintf(":%s", WEB_PORT)); err != nil {
+		panic(err)
 	}
 }
 
