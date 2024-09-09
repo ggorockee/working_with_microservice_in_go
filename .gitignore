@@ -2,3 +2,4 @@
 .idea
 *.sum
 project/db-data/postgres
+project/db-data/mongo
