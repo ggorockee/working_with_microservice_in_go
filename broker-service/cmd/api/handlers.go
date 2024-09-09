@@ -2,9 +2,7 @@ package main
 
 import (
 	"bytes"
-	"encoding/gob"
 	"encoding/json"
-	"errors"
 	"github.com/gofiber/fiber/v2"
 	"net/http"
 )
@@ -38,6 +36,13 @@ func Broker(c *fiber.Ctx) error {
 	})
 }
 
+func HealthCheck(c *fiber.Ctx) error {
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status": "ok",
+		"data":   nil,
+	})
+}
+
 func HandleSubmission(c *fiber.Ctx) error {
 	var requestPayload RequestPayload
 
@@ -57,32 +62,37 @@ func HandleSubmission(c *fiber.Ctx) error {
 
 func authenticate(c *fiber.Ctx, a AuthPayload) error {
 
-	if err := c.BodyParser(&a); err != nil {
-		return c.Status(http.StatusUnauthorized).JSON(err.Error())
-	}
+	//a AuthPayload = {
+	//	Email:    "sample@sample.com",
+	//	Password: "password",
+	//}
 
-	var encodePayload bytes.Buffer
+	jsonData, _ := json.MarshalIndent(a, "", "  ")
 
-	enc := gob.NewEncoder(&encodePayload)
-	_ = enc.Encode(a)
+	request, err := http.NewRequest("POST", "http://authentication-service/authenticate", bytes.NewBuffer(jsonData))
+	request.Header.Set("Content-Type", "application/json")
 
-	request, err := http.NewRequest("POST", "http://authentication-service/authticate", bytes.NewBuffer(encodePayload.Bytes()))
 	if err != nil {
 		return err
 	}
 
 	client := &http.Client{}
 	response, err := client.Do(request)
+
 	if err != nil {
 		return err
 	}
 
 	defer response.Body.Close()
 
-	if response.StatusCode == http.StatusUnauthorized {
-		return errors.New("invalid credentials")
-	} else if response.StatusCode != http.StatusAccepted {
-		return errors.New("error calling auth service")
+	if response.StatusCode != http.StatusOK {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid credentials",
+		})
+	} else if response.StatusCode == http.StatusUnauthorized {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"error": "authentication failed",
+		})
 	}
 
 	var jsonFromService jsonResponse
@@ -99,5 +109,6 @@ func authenticate(c *fiber.Ctx, a AuthPayload) error {
 	payload.Error = false
 	payload.Message = "authenticated!"
 	payload.Data = jsonFromService.Data
-	return nil
+
+	return c.Status(http.StatusOK).JSON(payload)
 }

@@ -19,4 +19,5 @@ func setupRoutes(app *fiber.App) {
 
 	app.Post("/", Broker)
 	app.Post("/handle", HandleSubmission)
+	app.Get("/healthcheck", HealthCheck)
 }

@@ -18,16 +18,16 @@ func Authenticate(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(err.Error())
 	}
 
-	var models data.Models
+	var user data.User
+	_, err := user.GetByEmail(requestPayload.Email)
 
-	user, err := models.User.GetByEmail(requestPayload.Email)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(err.Error())
 	}
 
 	valid, err := user.PasswordMatches(requestPayload.Password)
 	if err != nil || !valid {
-		return c.Status(http.StatusBadRequest).JSON(err.Error())
+		return c.Status(http.StatusBadRequest).JSON(err)
 	}
 
 	payload := jsonResponse{
@@ -37,4 +37,11 @@ func Authenticate(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusOK).JSON(payload)
+}
+
+func HealthCheck(ctx *fiber.Ctx) error {
+	return ctx.Status(http.StatusOK).JSON(fiber.Map{
+		"health": "ok",
+		"data":   nil,
+	})
 }

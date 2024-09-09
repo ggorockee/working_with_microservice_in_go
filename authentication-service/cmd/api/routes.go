@@ -18,4 +18,5 @@ func setupRoutes(app *fiber.App) {
 	))
 
 	app.Post("/authenticate", Authenticate)
+	app.Get("/healthcheck", HealthCheck)
 }
