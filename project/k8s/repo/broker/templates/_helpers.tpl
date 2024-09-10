@@ -47,7 +47,7 @@ Selector labels
 */}}
 {{- define "broker.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "broker.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/instance: {{ include "broker.name" . }}
 {{- end }}
 
 {{/*

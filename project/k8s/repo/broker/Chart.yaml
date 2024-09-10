@@ -25,8 +25,8 @@ appVersion: "1.16.0"
 
 dependencies:
   - name: "mongo"
-    version: 0.1.1
+    version: 0.1.6
     repository: file://charts/mongo
   - name: "rabbit"
-    version: 0.1.1
+    version: 0.1.6
     repository: file://charts/rabbit

@@ -47,7 +47,7 @@ Selector labels
 */}}
 {{- define "rabbit.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "rabbit.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/instance: {{ include "rabbit.name" . }}
 {{- end }}
 
 {{/*

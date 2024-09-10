@@ -47,7 +47,7 @@ Selector labels
 */}}
 {{- define "mongo.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "mongo.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/instance: {{ include "mongo.name" . }}
 {{- end }}
 
 {{/*

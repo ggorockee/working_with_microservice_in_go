@@ -172,7 +172,7 @@ func (app *Config) sendMail(c *fiber.Ctx, msg MailPayload) error {
 
 	jsonData, _ := json.MarshalIndent(msg, "", "\t")
 
-	mailServiceURL := "http://mail-service/send"
+	mailServiceURL := "http://broker-mailhog/service/send"
 
 	request, err := http.NewRequest("POST", mailServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {

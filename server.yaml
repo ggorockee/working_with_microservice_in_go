@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: ClusterIP
+  selector:
+    app: myapp
+  ports:
+    - name: http
+      port: 8090
+      targetPort: 80
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web
+  labels:
+    app: myapp
+    kkk: hoho
+spec:
+  containers:
+    - name: app
+      image: nginx

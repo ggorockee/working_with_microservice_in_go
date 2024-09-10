@@ -17,7 +17,7 @@ deployment:
     repository: ggorockee/microservice
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "broker-alpine3.20"
+    tag: "broker-alpine3.20-k8s-2"
   imagePullSecrets: []
 
   replicas: 1
@@ -112,3 +112,115 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+
+mongo:
+  deployment:
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+rabbit:
+  deployment:
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+mailhog:
+  enabled: true
+  deployment:
+    image:
+      repository: mailhog/mailhog
+      pullPolicy: IfNotPresent
+      tag: "latest"
+
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+    secret: {}
+
+  service:
+    ports:
+      - name: smtp-port
+        port: 1025
+        targetPort: 1025
+      - name: web-port
+        port: 8025
+        targetPort: 8025
+
+
+mailer:
+  enabled: true
+  deployment:
+    image:
+      repository: ggorockee/microservice
+      pullPolicy: IfNotPresent
+      tag: mailer-alpine3.20-k8s-1
+
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+    secret:
+      MAIL_DOMAIN: "logs"
+      MAIL_HOST: "broker-mailer"
+      MAIL_PORT: "1025"
+      MAIL_ENCRYPTION: "none"
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      FROM_NAME: "ggorockee"
+      FROM_ADDRESS: "admin@example.com"
+
+  service:
+    ports:
+      - name: main-port
+        port: 80
+        targetPort: 80
+
+
+logger:
+  enabled: true
+  deployment:
+    replicas: 1
+    image:
+      repository: ggorockee/microservice
+      pullPolicy: IfNotPresent
+      tag: logger-alpine3.20-k8s-1
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+    secret: {}
+
+  service:
+    ports:
+      - name: web-port
+        port: 80
+        targetPort: 80
+      - name: rpc-port
+        port: 5001
+        targetPort: 5001
+      - name: grpc-port
+        port: 50001
+        targetPort: 50001

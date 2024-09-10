@@ -1,9 +1,9 @@
 dependencies:
 - name: mongo
   repository: file://charts/mongo
-  version: 0.1.1
+  version: 0.1.6
 - name: rabbit
   repository: file://charts/rabbit
-  version: 0.1.1
-digest: sha256:17f25ca185beffdc2188731f597ece33c9e3c3a540bfcce52b8db76da9af985f
-generated: "2024-09-10T16:51:43.685908+09:00"
+  version: 0.1.6
+digest: sha256:cc98a43e13643895725914106cc247de7b79ef89210d6ae41a0116a2c06b9469
+generated: "2024-09-10T22:54:33.327508+09:00"
