@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"log-service/data"
+	"net"
+	"net/rpc"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -54,11 +56,32 @@ func main() {
 		Server: FiberNew(fiberApp),
 	}
 
+	// Register the RPC server
+	err = rpc.Register(new(RPCServer))
+	go app.rpcListen()
+
 	// combine router
 	app.setupRoutes()
 
 	// start web server
 	app.serve()
+}
+
+func (app *Config) rpcListen() error {
+	log.Println("Starting RPC server on port ", RPC_PORT)
+	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", RPC_PORT))
+	if err != nil {
+		return err
+	}
+	defer listen.Close()
+
+	for {
+		rpcConn, err := listen.Accept()
+		if err != nil {
+			continue
+		}
+		go rpc.ServeConn(rpcConn)
+	}
 }
 
 func (app *Config) serve() {

@@ -8,6 +8,7 @@ import (
 	"github.com/ggorockee/working_with_microservice_in_go/broker-service/event"
 	"io"
 	"net/http"
+	"net/rpc"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -250,4 +251,45 @@ func (app *Config) pushToQueue(name, msg string) error {
 		return err
 	}
 	return nil
+}
+
+type RPCPayload struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
+
+func (app *Config) logItemViaRPC(c *fiber.Ctx, l LogPayload) error {
+	client, err := rpc.Dial("tcp", "logger-service:5001")
+	if err != nil {
+		errResponse := jsonResponse{
+			Error:   true,
+			Message: err.Error(),
+			Data:    nil,
+		}
+		return c.Status(http.StatusBadRequest).JSON(errResponse)
+	}
+
+	rpcPayload := RPCPayload{
+		Name: l.Name,
+		Data: l.Data,
+	}
+
+	var result string
+	err = client.Call("RPCServer.LogInfo", rpcPayload, &result)
+	if err != nil {
+		errResponse := jsonResponse{
+			Error:   true,
+			Message: err.Error(),
+			Data:    nil,
+		}
+		return c.Status(http.StatusBadRequest).JSON(errResponse)
+	}
+
+	payload := jsonResponse{
+		Error:   false,
+		Message: result,
+		Data:    nil,
+	}
+
+	return c.Status(http.StatusAccepted).JSON(payload)
 }
