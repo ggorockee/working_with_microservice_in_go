@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/ggorockee/working_with_microservice_in_go/broker-service/event"
 	"io"
 	"net/http"
 
@@ -72,7 +73,7 @@ func (app *Config) HandleSubmission(c *fiber.Ctx) error {
 	case "auth":
 		return app.authenticate(c, requestPayload.Auth)
 	case "log":
-		return app.logItem(c, requestPayload.Log)
+		return app.logEventViaRabbit(c, requestPayload.Log)
 	case "mail":
 		return app.sendMail(c, requestPayload.Mail)
 	default:
@@ -211,4 +212,42 @@ func (app *Config) sendMail(c *fiber.Ctx, msg MailPayload) error {
 
 	return c.Status(http.StatusAccepted).JSON(payload)
 
+}
+
+func (app *Config) logEventViaRabbit(c *fiber.Ctx, l LogPayload) error {
+	err := app.pushToQueue(l.Name, l.Data)
+	if err != nil {
+		errResp := jsonResponse{
+			Error:   true,
+			Message: err.Error(),
+			Data:    nil,
+		}
+		return c.Status(http.StatusBadRequest).JSON(errResp)
+	}
+
+	payload := jsonResponse{
+		Error:   false,
+		Message: "logged via RabbitMQ",
+		Data:    nil,
+	}
+	return c.Status(http.StatusAccepted).JSON(payload)
+}
+
+func (app *Config) pushToQueue(name, msg string) error {
+	emitter, err := event.NewEventEmitter(app.Rabbit)
+	if err != nil {
+		return nil
+	}
+
+	payload := LogPayload{
+		Name: name,
+		Data: msg,
+	}
+
+	j, _ := json.MarshalIndent(&payload, "", "\t")
+	err = emitter.Push(string(j), "log.INFO")
+	if err != nil {
+		return err
+	}
+	return nil
 }
