@@ -5,5 +5,8 @@ dependencies:
 - name: rabbit
   repository: file://charts/rabbit
   version: 0.1.6
-digest: sha256:cc98a43e13643895725914106cc247de7b79ef89210d6ae41a0116a2c06b9469
-generated: "2024-09-10T22:54:33.327508+09:00"
+- name: postgres
+  repository: file://charts/postgres
+  version: 0.1.7
+digest: sha256:3e3cfddb90fb13153ad0110499e1111e9b39fe880ead551608554a516403ad07
+generated: "2024-09-11T10:16:42.585286+09:00"

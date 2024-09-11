@@ -5,7 +5,7 @@ DOCKER_HOST=ggorockee
 BROKER_BINARY=brokerApp
 MAIL_BINARY=mailServiceApp
 LOGGER_BINARY=loggerServiceApp
-
+AUTH_BINARY=authApp
 
 TAG=k8s
 
@@ -13,6 +13,8 @@ TAG=k8s
 BROKER_VERSION=3
 MAIL_VERSION=1
 LOGGER_VERSION=1
+AUTH_VERSION=2
+########################
 
 
 
@@ -21,6 +23,8 @@ push_mail_on_hub: build_mailer push_mailer
 push_logger_on_hub: build_logger push_logger
 
 push_broker_on_hub: build_broker push_broker
+
+push_auth_on_hub: build_auth push_auth
 
 build_broker:
 	@echo "[INFO] building broker binary"
@@ -60,4 +64,22 @@ push_logger:
 	docker push ${DOCKER_HOST}/${REPOSITORY}:logger-${LINUX_VERSION}-${TAG}-${LOGGER_VERSION}
 	@echo "\n[OUTPUT]: ${DOCKER_HOST}/${REPOSITORY}:logger-${LINUX_VERSION}-${TAG}-${LOGGER_VERSION}\n"
 	@echo "[INFO] push_broker done\n"
+
+build_auth:
+	@echo "[INFO] building auth binary"
+	cd ./authentication-service && go get authentication-service/cmd/api && env GOOS=linux CGO_ENABLED=0 go build -o ${AUTH_BINARY} ./cmd/api/
+	@echo ""
+	@echo "[INFO] build auth done"
+	@echo ""
+
+push_auth:
+	@echo "[INFO] Change docker tag"
+	cd ./authentication-service && docker build -t ${DOCKER_HOST}/${REPOSITORY}:auth-${LINUX_VERSION}-${TAG}-${AUTH_VERSION} -f authentication-service.dockerfile .
+	@echo "[INFO] push ggorockee docker hub"
+	docker push ${DOCKER_HOST}/${REPOSITORY}:auth-${LINUX_VERSION}-${TAG}-${AUTH_VERSION}
+	@echo ""
+	@echo "[OUTPUT]: ${DOCKER_HOST}/${REPOSITORY}:auth-${LINUX_VERSION}-${TAG}-${AUTH_VERSION}"
+	@echo ""
+	@echo "[INFO] push_broker done"
+	@echo ""
 

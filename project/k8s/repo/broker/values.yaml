@@ -224,3 +224,72 @@ logger:
       - name: grpc-port
         port: 50001
         targetPort: 50001
+
+postgres:
+  appname: postgres
+  deployment:
+    replicas: 1
+
+    image:
+      repository: postgres
+      pullPolicy: IfNotPresent
+      tag: "14.0"
+
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+    secret:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: users
+
+    volumeMounts:
+      - name: &db-data postgres-db-data
+        mountPath: /var/lib/postgresql/data
+
+    volumes:
+      - name: *db-data
+        emptyDir: {}
+
+  service:
+    type: ClusterIP
+    ports:
+      - port: 5432
+        targetPort: 5432
+        name: postgres-port
+
+auth:
+  appname: auth
+  deployment:
+    replicas: 1
+
+    image:
+      repository: ggorockee/microservice
+      pullPolicy: IfNotPresent
+      tag: "auth-alpine3.20-k8s-2"
+
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+    secret: {}
+
+    volumeMounts: []
+
+    volumes: []
+
+  service:
+    type: ClusterIP
+    ports:
+      - port: 80
+        targetPort: 80
+        name: auth-port

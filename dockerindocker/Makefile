@@ -1,8 +1,10 @@
 VOL=volume
 REPOSITORY=ggorockee/dind
-DIND_TAG=27.2.1-alpine3.20-go1.23
+DIND_TAG=27.2.1-alpine3.20-go1.23-crossplatform-v3
 NAME=dind
 
+#####################################################
+build_image_tag=3
 
 run: daemon exec
 
@@ -22,3 +24,8 @@ down:
 	@echo "[INFO] docker cleaning"
 	docker rm -f ${NAME}
 	@echo "[INFO] done!"
+
+create_image_and_push:
+	@echo "[INFO] Create & Push Docker in Docker Image"
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${REPOSITORY}:27.2.1-alpine3.20-go1.23-crossplatform-v${build_image_tag} -f createImageGO.dockerfile .
+	@echo "[INFO] Done Docker in Docker Image"
