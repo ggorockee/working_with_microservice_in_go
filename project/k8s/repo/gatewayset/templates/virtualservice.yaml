@@ -1,0 +1,32 @@
+{{- range .Values.gateways }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+spec:
+  hosts:
+    {{- range .hosts}}
+    - {{ . | quote}}
+    {{- end}}
+  gateways:
+    - {{ .name }}
+  http:
+    {{- with .rules }}
+    - match:
+        {{- toYaml . | nindent 8 }}
+    {{- end}}
+    {{- with .rewriteRule }}
+      rewrite:
+        {{- toYaml . | nindent 8}}
+    {{- end}}
+      route:
+        - destination:
+            host: {{ .svcRef.name }}
+            port:
+              number: {{ .svcRef.port }}
+{{- end}}
+
+
+

@@ -1,0 +1,94 @@
+gateways:
+  - name: argocd
+    namespace: argocd
+    hosts:
+      - "*"
+    port:
+      number: 8800
+      name: argocd
+      protocol: HTTP
+
+    svcRef:
+      name: argocd-server
+      port: 80
+
+    rules:
+      - uri:
+          prefix: /
+
+#    rewriteRule:
+#      uri: /
+
+
+#    rewrite:
+#      uri: /
+
+#  - name: bookinfo-gateway
+#    namespace: default
+#    hosts:
+#      - "*"
+#
+#    port:
+#      number: 8080
+#      name: http
+#      protocol: HTTP
+#
+#    svcRef:
+#      name: productpage
+#      port: 9080
+#
+#    rules:
+#      - uri:
+#          exact: /productpage
+#      - uri:
+#          prefix: /static
+#      - uri:
+#          exact: /login
+#      - uri:
+#          exact: /logout
+#      - uri:
+#          prefix: /api/v1/products
+
+  - name: broker-frontend
+    namespace: broker-service
+    hosts:
+      - "*"
+
+    # gateway
+    port:
+      number: 3000
+      name: http
+      protocol: HTTP
+
+    # virtual service
+    svcRef:
+      name: broker-frontend
+      port: 8080
+
+    rules:
+      - uri:
+          prefix: /
+
+  - name: broker
+    namespace: broker-service
+    hosts:
+      - "*"
+
+    # gateway
+    port:
+      number: 8000
+      name: http
+      protocol: HTTP
+
+    # virtual service
+    svcRef:
+      name: broker
+      port: 80
+
+    rules:
+      - uri:
+          prefix: /
+
+
+
+

@@ -17,7 +17,7 @@ deployment:
     repository: ggorockee/microservice
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "broker-alpine3.20-k8s-4"
+    tag: "broker-alpine3.20-k8s-5"
   imagePullSecrets: []
 
   replicas: 1
@@ -102,7 +102,7 @@ service:
     containerPort: 80
 
 ingress:
-  enabled: true
+  enabled: false
 
   className: "nginx"
 
@@ -297,7 +297,7 @@ auth:
 
 frontend:
   ingress:
-    enabled: true
+    enabled: false
 
     className: "nginx"
 
@@ -324,7 +324,7 @@ frontend:
     image:
       repository: ggorockee/microservice
       pullPolicy: IfNotPresent
-      tag: "front-alpine3.20-k8s-9"
+      tag: "front-alpine3.20-k8s-11"
 
     resources:
       requests:

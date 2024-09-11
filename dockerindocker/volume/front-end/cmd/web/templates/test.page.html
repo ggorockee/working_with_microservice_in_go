@@ -58,7 +58,7 @@
             headers: headers,
         }
 
-        fetch("http://localhost/api/v1/healthcheck", body)
+        fetch("http://localhost:8000/api/v2/healthcheck", body)
             .then((response) => response.json())
             .then((data) => {
                 sent.innerHTML = "GET HealthCheck!!!";
@@ -97,7 +97,7 @@
             headers: headers,
         }
 
-        fetch("http://localhost/api/v1/handle", body)
+        fetch("http://localhost:8000/api/v2/handle", body)
             .then((response) => response.json())
             .then((data) => {
                 sent.innerHTML = JSON.stringify(payload, undefined, 4);
@@ -135,7 +135,7 @@
             headers: headers,
         }
 
-        fetch("http://localhost/api/v1/handle", body)
+        fetch("http://localhost:8000/api/v2/handle", body)
             .then((response) => response.json())
             .then((data) => {
                 sent.innerHTML = JSON.stringify(payload, undefined, 4);
@@ -172,7 +172,7 @@
             headers: headers,
         }
 
-        fetch("http://localhost/api/v1/handle", body)
+        fetch("http://localhost:8000/api/v2/handle", body)
             .then((response) => response.json())
             .then((data) => {
                 sent.innerHTML = JSON.stringify(payload, undefined, 4);
@@ -199,7 +199,7 @@
 
         }
 
-        fetch("http://localhost/api/v1", body)
+        fetch("http://localhost:8000/api/v2", body)
             .then((response) => response.json())
             .then((data) => {
                 sent.innerHTML ="empty post request";
