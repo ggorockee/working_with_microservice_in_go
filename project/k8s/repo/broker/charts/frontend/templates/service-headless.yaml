@@ -1,0 +1,13 @@
+{{- if eq .Values.service.type "None"}}
+{{- $fullname := include "frontend.fullname" . -}}
+{{- $namespace := .Release.Namespace -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-headless" $fullname}}
+  labels:
+    {{- include "frontend.labels" . | nindent 4 }}
+spec:
+  type: ExternalName
+  externalName: {{ $fullname }}.{{ $namespace }}.svc.cluster.local
+{{- end}}

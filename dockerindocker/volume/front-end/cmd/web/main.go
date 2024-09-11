@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
+)
+
+const (
+	WEBPORT string = "8080"
+)
+
+func main() {
+	engine := html.New("./templates", ".html")
+
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
+
+	setupRoute(app)
+	if err := app.Listen(fmt.Sprintf(":%s", WEBPORT)); err != nil {
+		panic(err)
+	}
+
+}

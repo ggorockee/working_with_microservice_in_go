@@ -6,17 +6,22 @@ BROKER_BINARY=brokerApp
 MAIL_BINARY=mailServiceApp
 LOGGER_BINARY=loggerServiceApp
 AUTH_BINARY=authApp
+FRONT_BINARY=frontApp
 
 TAG=k8s
 
 ###### VERSION ######
-BROKER_VERSION=3
+BROKER_VERSION=4
 MAIL_VERSION=1
 LOGGER_VERSION=1
 AUTH_VERSION=2
+FRONT_VERSION=9
 ########################
 
 
+
+
+push_front_on_hub: build_front push_front
 
 push_mail_on_hub: build_mailer push_mailer
 
@@ -81,5 +86,24 @@ push_auth:
 	@echo "[OUTPUT]: ${DOCKER_HOST}/${REPOSITORY}:auth-${LINUX_VERSION}-${TAG}-${AUTH_VERSION}"
 	@echo ""
 	@echo "[INFO] push_broker done"
+	@echo ""
+
+
+build_front:
+	@echo "[INFO] building front binary"
+	cd ./front-end && go get front-end/cmd/web && env GOOS=linux CGO_ENABLED=0 go build -o ${FRONT_BINARY} ./cmd/web/
+	@echo ""
+	@echo "[INFO] build front done"
+	@echo ""
+
+push_front:
+	@echo "[INFO] Change docker tag"
+	cd ./front-end && docker build -t ${DOCKER_HOST}/${REPOSITORY}:front-${LINUX_VERSION}-${TAG}-${FRONT_VERSION} -f frontend.dockerfile .
+	@echo "[INFO] push ggorockee docker hub"
+	docker push ${DOCKER_HOST}/${REPOSITORY}:front-${LINUX_VERSION}-${TAG}-${FRONT_VERSION}
+	@echo ""
+	@echo "[OUTPUT]: ${DOCKER_HOST}/${REPOSITORY}:front-${LINUX_VERSION}-${TAG}-${FRONT_VERSION}"
+	@echo ""
+	@echo "[INFO] push front done"
 	@echo ""
 

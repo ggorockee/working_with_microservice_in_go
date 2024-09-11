@@ -42,9 +42,11 @@ spec:
                 name: {{ $fullname }}
           {{- end }}
           ports:
-            - name: {{ .Values.service.portName }}
-              containerPort: {{ .Values.service.containerPort }}
+            {{- range .Values.service.ports }}
+            - name: {{ .portName }}
+              containerPort: {{ .containerPort }}
               protocol: TCP
+            {{- end}}
           {{- with .Values.deployment.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

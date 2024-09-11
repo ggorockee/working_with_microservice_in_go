@@ -11,3 +11,4 @@ mail-service/mailServiceApp
 project/db-data/rabbitmq
 listener-service/listenerApp
 dockerindocker/volume/authentication-service/authApp
+dockerindocker/volume/broker-service/brokerApp
