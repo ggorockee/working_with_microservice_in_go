@@ -18,5 +18,7 @@ RUN mkdir /app
 
 COPY --from=builder /app/campingApp /app
 COPY ./cmd/api/docs /app
+RUN ls /app
+RUN ls /app/docs
 
 CMD ["/app/campingApp"]
