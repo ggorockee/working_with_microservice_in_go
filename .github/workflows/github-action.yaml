@@ -52,6 +52,7 @@ jobs:
         context: .
         push: true
         tags: ${{ env.DOCKERHUB_USERNAME }}/${{ env.REPOSITORY_NAME }}:${{ env.SHA }}
+        file: app-service.dockerfile
       
 
 #   deploy:
