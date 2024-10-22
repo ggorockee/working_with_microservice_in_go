@@ -13,7 +13,7 @@ env:
   DOCKERFILE: app-service.dockerfile
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     outputs:
       SHA: ${{ env.SHA }}
