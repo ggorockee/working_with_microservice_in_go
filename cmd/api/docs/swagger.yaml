@@ -1,0 +1,45 @@
+basePath: /v1
+definitions:
+  handlers.ResponseHTTP:
+    properties:
+      data: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+info:
+  contact:
+    email: ggorockee@gmail.com
+    name: ggorockee
+  description: This is an API for Book Application
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Application
+  version: "1.0"
+paths:
+  /healthz/ready:
+    get:
+      consumes:
+      - application/json
+      description: Get Health Check
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.ResponseHTTP'
+            - properties:
+                data: {}
+              type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/handlers.ResponseHTTP'
+      summary: Get Health Check
+      tags:
+      - HealthCheck
+swagger: "2.0"
