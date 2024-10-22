@@ -10,6 +10,7 @@ env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   REPOSITORY_NAME: camping-backend-with-go
+  DOCKERFILE: app-service.dockerfile
 
 jobs:
   build:
@@ -51,8 +52,8 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ env.DOCKERHUB_USERNAME }}/${{ env.REPOSITORY_NAME }}:${{ env.SHA }}
-        file: app-service.dockerfile
+        tags: ${{ env.DOCKERHUB_USERNAME }}/${{ env.REPOSITORY_NAME }}:v-${{ env.SHA }}
+        file: ${{ env.DOCKERFILE }}
       
 
 #   deploy:
