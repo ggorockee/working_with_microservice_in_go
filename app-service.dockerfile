@@ -17,5 +17,6 @@ FROM alpine:latest
 RUN mkdir /app
 
 COPY --from=builder /app/campingApp /app
+COPY ./cmd/api/docs /app
 
 CMD ["/app/campingApp"]
